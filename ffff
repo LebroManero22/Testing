@@ -6810,6 +6810,10 @@ task.spawn(function()
         end
 
      local function setupButton(button, isMobile)
+    if shouldHide then
+        button.Visible = false
+        return
+    end
             if button and button:IsA("ImageButton") and button.Visible then
                 button:ClearAllChildren()
                 button.Image = ""
@@ -6905,6 +6909,8 @@ task.spawn(function()
             end
         end
 
+local isFirstPrompt = true
+
         local function applyChanges(prompt, counter, isMobile)
             local alertContents = prompt:WaitForChild("AlertContents")
             prompt.Image = ""
@@ -6957,20 +6963,40 @@ task.spawn(function()
         
             -- Footer adjustments with consistent button handling
 local footer = alertContents:WaitForChild("Footer")
-            local buttons = footer:WaitForChild("Buttons")
-            
-            -- Get both buttons
-            local button1 = buttons:FindFirstChild("1")
-            local button2 = buttons:FindFirstChild("2")
-            
-            -- Check original visibility before modification
+    local buttons = footer:WaitForChild("Buttons")
+    
+    -- Get both buttons
+    local button1 = buttons:FindFirstChild("1")
+    local button2 = buttons:FindFirstChild("2")
+    
+    if isMobile then
+        if isFirstPrompt then
+            -- For first prompt, hide button1 and setup button2
             if button1 and button1.Visible then
-                setupButton(button1, isMobile)
+                setupButton(button1, isMobile, true) -- Hide button1
             end
-            
             if button2 and button2.Visible then
-                setupButton(button2, isMobile)
+                setupButton(button2, isMobile, false) -- Show and setup button2
             end
+        else
+            -- For subsequent prompts, hide button2 and setup button1
+            if button1 and button1.Visible then
+                setupButton(button1, isMobile, false) -- Show and setup button1
+            end
+            if button2 and button2.Visible then
+                setupButton(button2, isMobile, true) -- Hide button2
+            end
+        end
+        isFirstPrompt = not isFirstPrompt -- Toggle for next prompt
+    else
+        -- Desktop behavior remains unchanged
+        if button1 and button1.Visible then
+            setupButton(button1, isMobile, false)
+        end
+        if button2 and button2.Visible then
+            setupButton(button2, isMobile, false)
+        end
+    end
 
             -- Mobile-specific container adjustments
             if isMobile then
