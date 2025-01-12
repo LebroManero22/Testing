@@ -1249,7 +1249,7 @@ task.spawn(function()
             end
         end
 
-        local function applyChanges(prompt, counter, isMobile)
+ local function applyChanges(prompt, counter, isMobile)
             local alertContents = prompt:WaitForChild("AlertContents")
             prompt.Image = ""
             prompt.ImageTransparency = 1
@@ -1259,11 +1259,11 @@ task.spawn(function()
             -- Create holographic effect
             local holoOverlay = Instance.new("ImageLabel")
             holoOverlay.BackgroundTransparency = 1
-            holoOverlay.Image = "rbxassetid://8677004618"  -- Holographic texture
-            holoOverlay.ImageTransparency = 0.8  -- Slightly more visible
+            holoOverlay.Image = "rbxassetid://8677004618"
+            holoOverlay.ImageTransparency = 0.8
             holoOverlay.ImageColor3 = Color3.fromRGB(0, 255, 255)
-            holoOverlay.Size = UDim2.new(1.1, 10, 1.1, 10)  -- Slightly larger than the prompt
-            holoOverlay.Position = UDim2.new(-0.05, 0, -0.05, 0) -- Centered offset
+            holoOverlay.Size = UDim2.new(1.1, 10, 1.1, 10)
+            holoOverlay.Position = UDim2.new(-0.05, 0, -0.05, 0)
             holoOverlay.Parent = prompt
         
             -- Add scanline effect
@@ -1272,7 +1272,7 @@ task.spawn(function()
             -- Create neon glow
             createNeonEffect(prompt, Color3.fromRGB(0, 200, 255))
         
-            -- Enhanced title setup
+            -- Enhanced title setup with mobile adjustments
             local titleLabel = alertContents:WaitForChild("TitleContainer")
                 :WaitForChild("TitleArea"):WaitForChild("Title")
             titleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
@@ -1282,13 +1282,24 @@ task.spawn(function()
             titleLabel.TextStrokeTransparency = 1
             titleLabel.TextTransparency = 1
             titleLabel.Text = "" .. counter
-        
-            -- Adjust title size
-            titleLabel.Size = UDim2.new(1.2, 20, 1.2, 20) -- Enlarged title area
-            titleLabel.Position = UDim2.new(-0.1, 0, 0, 0) -- Adjusted to center
-        
-            -- Add cyber underline
-            createCyberUnderline(titleLabel)
+
+            -- Adjust title size based on device
+            if isMobile then
+                titleLabel.Size = UDim2.new(0.1, 0, 0.1, 0) -- Much smaller for mobile
+                titleLabel.Position = UDim2.new(0, 0, 0, 0)
+                titleLabel.TextTransparency = 1 -- Fully transparent
+                -- Still create underline but make it minimal
+                local underline = createCyberUnderline(titleLabel)
+                if underline then
+                    underline.Size = UDim2.new(0.1, 0, 0.1, 0)
+                    underline.Visible = true -- Keep it visible but minimal
+                end
+            else
+                -- Original desktop sizes
+                titleLabel.Size = UDim2.new(1.2, 20, 1.2, 20)
+                titleLabel.Position = UDim2.new(-0.1, 0, 0, 0)
+                createCyberUnderline(titleLabel)
+            end
         
             -- Footer adjustments
             local footer = alertContents:WaitForChild("Footer")
@@ -1299,19 +1310,16 @@ task.spawn(function()
 
             -- Mobile-specific adjustments
             if isMobile then
-                -- Hide MiddleContainer
                 local middleContainer = alertContents:FindFirstChild("MiddleContent")
                 if middleContainer then
                     middleContainer.Visible = false
                 end
 
-                -- Hide second button
                 local button2 = buttons:FindFirstChild("2")
                 if button2 then
                     button2.Visible = false
                 end
 
-                -- Hide FooterContent
                 local footerContent = footer:FindFirstChild("FooterContent")
                 if footerContent then
                     local content = footerContent:FindFirstChild("Content")
