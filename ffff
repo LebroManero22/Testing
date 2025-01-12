@@ -866,19 +866,46 @@ end
 local function checkForPurchasePrompts()
     local promptsFound = false
     local promptCount = 0
+    local isMobile = false
     local purchasePrompt = CoreGui:FindFirstChild("PurchasePrompt")
     if purchasePrompt then
-        local container = purchasePrompt:FindFirstChild("ProductPurchaseContainer")
-        if container then
-            local animator = container:FindFirstChild("Animator")
-            if animator and animator:FindFirstChild("Prompt") then
-                promptsFound = true
-                promptCount = promptCount + 1
+        -- Check for mobile prompt path
+        local mobilePrompt = purchasePrompt:FindFirstChild("RobuxUpsellContainer")
+        if mobilePrompt then
+            local prompt = mobilePrompt:FindFirstChild("Prompt")
+            if prompt then
+                local childrenFrame = prompt:FindFirstChild("Children") -- Get the "Children" frame
+                if childrenFrame then
+                    local children = childrenFrame:GetChildren() -- Get all children of the "Children" frame
+                    for _, child in ipairs(children) do
+                        if child.Name == "1" then
+                            local innerPrompt = child:FindFirstChild("1")
+                            if innerPrompt then
+                                promptsFound = true
+                                promptCount = promptCount + 1
+                                isMobile = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            -- Original desktop prompt path
+            local container = purchasePrompt:FindFirstChild("ProductPurchaseContainer")
+            if container then
+                local animator = container:FindFirstChild("Animator")
+                if animator and animator:FindFirstChild("Prompt") then
+                    promptsFound = true
+                    promptCount = promptCount + 1
+                    isMobile = false
+                end
             end
         end
     end
-    return promptsFound, promptCount
+    return promptsFound, promptCount, isMobile
 end
+
 
 local function handlePrompts()
     local messageUI = nil
